@@ -1,83 +1,132 @@
 // Content script for Instagram MLM Detector
 // This runs on Instagram post pages
 
-// Main configuration
-const config = {
-  // Time to wait for Instagram content to load
-  loadDelay: 2000,
-  
-  // Auto-analyze configuration
+// Get settings from storage
+let settings = {
+  widgetEnabled: true,
+  widgetPosition: 'bottom-right',
   autoAnalyze: true,
-  
-  // Widget positioning
-  widgetPosition: 'bottom-right', // 'top-right', 'bottom-right', 'top-left', 'bottom-left'
-  
-  // Analysis throttling (ms)
-  minimumAnalysisInterval: 5000
+  notificationLevel: 'all'
 };
 
 // Track state
 let lastAnalyzedUrl = '';
 let lastAnalysisTime = 0;
 let analysisInProgress = false;
+let widgetVisible = false;
+let observingContent = false;
 
-// Initialize when page content is loaded
-window.addEventListener('load', function() {
-  // Check if we're on an Instagram post
-  if (isInstagramPost(window.location.href)) {
-    // Set a delay to allow Instagram's content to fully load
-    setTimeout(initializeOnPost, config.loadDelay);
-  }
-});
+// Initialize when the script loads
+initializeExtension();
 
-// Watch for URL changes (Instagram is a single-page app)
-let lastUrl = window.location.href;
-new MutationObserver(() => {
-  const currentUrl = window.location.href;
-  if (currentUrl !== lastUrl) {
-    lastUrl = currentUrl;
+// Initialize extension
+function initializeExtension() {
+  // Load settings first
+  chrome.storage.local.get(['settings'], function(data) {
+    if (data.settings) {
+      settings = data.settings;
+    }
     
-    // Check if new URL is an Instagram post
-    if (isInstagramPost(currentUrl)) {
-      // Set a delay to allow Instagram's content to fully load
-      setTimeout(initializeOnPost, config.loadDelay);
-    } else {
-      // Hide or remove the widget when navigating away from a post
-      const widget = document.getElementById('mlm-detector-widget');
-      if (widget) {
-        widget.classList.add('hidden');
+    // Setup observers for Instagram's SPA
+    setupPageObservers();
+    
+    // Check if we're already on an Instagram post
+    if (isInstagramPost(window.location.href)) {
+      setupWidgetForCurrentPage();
+    }
+  });
+}
+
+// Setup page mutation observers
+function setupPageObservers() {
+  if (observingContent) return;
+  
+  // Watch for URL changes (Instagram is a single-page app)
+  let lastUrl = window.location.href;
+  
+  // Create observer for URL and content changes
+  const observer = new MutationObserver((mutations) => {
+    // Check for URL changes
+    const currentUrl = window.location.href;
+    if (currentUrl !== lastUrl) {
+      lastUrl = currentUrl;
+      handleUrlChange(currentUrl);
+    }
+    
+    // If we're on a post page, look for content changes that indicate the post fully loaded
+    if (isInstagramPost(currentUrl) && !widgetVisible && settings.widgetEnabled) {
+      // Check if specific Instagram post containers are now in the DOM
+      const postContent = document.querySelector('article[role="presentation"]');
+      if (postContent) {
+        setupWidgetForCurrentPage();
       }
     }
-  }
-}).observe(document, { subtree: true, childList: true });
+  });
+  
+  // Start observing with a more targeted approach
+  observer.observe(document.body, { childList: true, subtree: true });
+  observingContent = true;
+  
+  console.log('MLM Detector: Page observers initialized');
+}
 
-// Listen for messages from background or popup scripts
-chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
-  // Handle any custom messages here
-  if (message.action === 'analyze') {
-    analyzeCurrentPost();
-  }
-});
-
-// Functions
-
-// Initialize when on a post page
-function initializeOnPost() {
-  // Check if widget already exists
-  if (document.getElementById('mlm-detector-widget')) {
-    updateWidgetPosition();
-    if (config.autoAnalyze) {
-      checkAndAnalyzePost();
+// Handle URL changes
+function handleUrlChange(url) {
+  console.log('MLM Detector: URL changed to', url);
+  
+  if (isInstagramPost(url)) {
+    // On post page - attempt to initialize widget with a progressive delay strategy
+    if (settings.widgetEnabled) {
+      attemptWidgetSetup();
     }
+  } else {
+    // Not on a post page - hide widget
+    hideWidget();
+  }
+}
+
+// Try to set up widget multiple times with increasing delays
+function attemptWidgetSetup(attempt = 0) {
+  if (attempt >= 5) return; // Give up after 5 attempts
+  
+  // Exponential backoff delay: 100ms, 200ms, 400ms, 800ms, 1600ms
+  const delay = Math.pow(2, attempt) * 100;
+  
+  setTimeout(() => {
+    if (document.querySelector('article[role="presentation"]')) {
+      setupWidgetForCurrentPage();
+    } else {
+      attemptWidgetSetup(attempt + 1);
+    }
+  }, delay);
+}
+
+// Setup widget for the current page
+function setupWidgetForCurrentPage() {
+  const currentUrl = window.location.href;
+  
+  if (!isInstagramPost(currentUrl) || !settings.widgetEnabled) {
     return;
   }
   
-  // Create the MLM detector widget
-  createWidget();
+  console.log('MLM Detector: Setting up widget for current page');
+  
+  // Check if widget already exists
+  let widget = document.getElementById('mlm-detector-widget');
+  
+  if (widget) {
+    // Widget exists, update its position and visibility
+    updateWidgetPosition(widget);
+    widget.classList.remove('hidden');
+    widgetVisible = true;
+  } else {
+    // Widget doesn't exist, create it
+    createWidget();
+  }
   
   // Auto-analyze if enabled
-  if (config.autoAnalyze) {
-    checkAndAnalyzePost();
+  if (settings.autoAnalyze) {
+    checkAndAnalyzePost(currentUrl);
   }
 }
 
@@ -94,11 +143,14 @@ function createWidget() {
   widget.innerHTML = `
     <div class="ig-mlm-header">
       <h3>MLM Detector</h3>
-      <button class="ig-mlm-close">&times;</button>
+      <div class="ig-mlm-header-actions">
+        <button class="ig-mlm-minimize">&minus;</button>
+        <button class="ig-mlm-close">&times;</button>
+      </div>
     </div>
     <div id="ig-mlm-content" class="ig-mlm-content">
       <div id="ig-mlm-status" class="ig-mlm-status">
-        <div id="ig-mlm-loading" class="ig-mlm-loading">
+        <div id="ig-mlm-loading" class="ig-mlm-loading hidden">
           <div class="ig-mlm-spinner"></div>
           <p>Analyzing post...</p>
         </div>
@@ -125,6 +177,10 @@ function createWidget() {
           <p id="ig-mlm-error-message">Error analyzing post</p>
           <button id="ig-mlm-retry" class="ig-mlm-button">Retry</button>
         </div>
+        <div id="ig-mlm-waiting" class="ig-mlm-waiting">
+          <p>Click to analyze this post for MLM content</p>
+          <button id="ig-mlm-analyze" class="ig-mlm-button">Analyze Post</button>
+        </div>
       </div>
     </div>
   `;
@@ -134,19 +190,25 @@ function createWidget() {
   
   // Append to body
   document.body.appendChild(widget);
+  widgetVisible = true;
   
   // Add event listeners
-  document.querySelector('.ig-mlm-close').addEventListener('click', () => {
-    widget.classList.add('hidden');
-  });
-  
+  document.querySelector('.ig-mlm-close').addEventListener('click', hideWidget);
+  document.querySelector('.ig-mlm-minimize').addEventListener('click', minimizeWidget);
   document.getElementById('ig-mlm-retry')?.addEventListener('click', () => {
     analyzeCurrentPost();
   });
+  document.getElementById('ig-mlm-analyze')?.addEventListener('click', () => {
+    analyzeCurrentPost();
+  });
+  
+  console.log('MLM Detector: Widget created');
 }
 
 // Add the widget styles
 function addWidgetStyles() {
+  if (document.getElementById('mlm-detector-styles')) return;
+  
   const styleSheet = document.createElement('style');
   styleSheet.id = 'mlm-detector-styles';
   styleSheet.textContent = `
@@ -178,6 +240,11 @@ function addWidgetStyles() {
       flex-direction: column;
     }
     
+    .ig-mlm-detector.minimized {
+      height: 40px;
+      overflow: hidden;
+    }
+    
     .ig-mlm-header {
       display: flex;
       justify-content: space-between;
@@ -194,7 +261,12 @@ function addWidgetStyles() {
       font-weight: 600;
     }
     
-    .ig-mlm-close {
+    .ig-mlm-header-actions {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .ig-mlm-close, .ig-mlm-minimize {
       background: none;
       border: none;
       color: white;
@@ -202,6 +274,11 @@ function addWidgetStyles() {
       cursor: pointer;
       padding: 0;
       line-height: 1;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     
     .ig-mlm-content {
@@ -361,6 +438,11 @@ function addWidgetStyles() {
       margin-bottom: 12px;
     }
     
+    .ig-mlm-waiting {
+      text-align: center;
+      padding: 16px 0;
+    }
+    
     .ig-mlm-button {
       background-color: #0095f6;
       color: white;
@@ -369,6 +451,7 @@ function addWidgetStyles() {
       padding: 8px 16px;
       font-weight: 600;
       cursor: pointer;
+      margin-top: 12px;
     }
     
     .ig-mlm-button:hover {
@@ -383,16 +466,13 @@ function addWidgetStyles() {
   document.head.appendChild(styleSheet);
 }
 
-// Update widget position based on configuration
+// Update widget position based on settings
 function updateWidgetPosition(widget = null) {
   widget = widget || document.getElementById('mlm-detector-widget');
   if (!widget) return;
   
-  // Remove all position classes
-  widget.classList.remove('top-right', 'bottom-right', 'top-left', 'bottom-left');
-  
-  // Set position based on config
-  switch (config.widgetPosition) {
+  // Set position based on settings
+  switch (settings.widgetPosition) {
     case 'top-right':
       widget.style.top = '20px';
       widget.style.right = '20px';
@@ -421,41 +501,79 @@ function updateWidgetPosition(widget = null) {
   }
 }
 
+// Hide widget
+function hideWidget() {
+  const widget = document.getElementById('mlm-detector-widget');
+  if (widget) {
+    widget.classList.add('hidden');
+    widgetVisible = false;
+  }
+}
+
+// Show widget
+function showWidget() {
+  const widget = document.getElementById('mlm-detector-widget');
+  if (widget) {
+    widget.classList.remove('hidden');
+    widget.classList.remove('minimized');
+    widgetVisible = true;
+  } else if (settings.widgetEnabled && isInstagramPost(window.location.href)) {
+    createWidget();
+  }
+}
+
+// Minimize widget
+function minimizeWidget() {
+  const widget = document.getElementById('mlm-detector-widget');
+  if (widget) {
+    widget.classList.toggle('minimized');
+  }
+}
+
 // Check if a URL is an Instagram post
 function isInstagramPost(url) {
   return url && url.match(/https:\/\/www\.instagram\.com\/p\/[^/]+\/?/);
 }
 
 // Check if we need to analyze the current post and do so if needed
-function checkAndAnalyzePost() {
-  const currentUrl = window.location.href;
-  
-  // Skip if not an Instagram post
-  if (!isInstagramPost(currentUrl)) {
+function checkAndAnalyzePost(url = window.location.href) {
+  // Skip if not an Instagram post or analysis in progress
+  if (!isInstagramPost(url) || analysisInProgress) {
     return;
   }
   
-  // Skip if we've already analyzed this URL recently or analysis is in progress
-  if (analysisInProgress || (currentUrl === lastAnalyzedUrl && 
-      Date.now() - lastAnalysisTime < config.minimumAnalysisInterval)) {
+  // Skip if we've already analyzed this URL recently
+  if (url === lastAnalyzedUrl && 
+      Date.now() - lastAnalysisTime < 5000) {
     return;
   }
   
   // Check if we already have analysis for this post in storage
   chrome.storage.local.get(['history'], function(data) {
     const history = data.history || [];
-    const existingAnalysis = history.find(item => item.url === currentUrl);
+    const existingAnalysis = history.find(item => item.url === url);
     
     if (existingAnalysis) {
       // Show cached results
       displayResult(existingAnalysis.result);
       
-      // Show the widget
-      const widget = document.getElementById('mlm-detector-widget');
-      if (widget) widget.classList.remove('hidden');
-    } else {
-      // Analyze the post
+      // Show appropriate sections
+      const waitingElement = document.getElementById('ig-mlm-waiting');
+      if (waitingElement) waitingElement.classList.add('hidden');
+    } else if (settings.autoAnalyze) {
+      // Analyze the post automatically if auto-analyze is enabled
       analyzeCurrentPost();
+    } else {
+      // Show the waiting/prompt section
+      const waitingElement = document.getElementById('ig-mlm-waiting');
+      const loadingElement = document.getElementById('ig-mlm-loading');
+      const resultElement = document.getElementById('ig-mlm-result');
+      const errorElement = document.getElementById('ig-mlm-error');
+      
+      if (waitingElement) waitingElement.classList.remove('hidden');
+      if (loadingElement) loadingElement.classList.add('hidden');
+      if (resultElement) resultElement.classList.add('hidden');
+      if (errorElement) errorElement.classList.add('hidden');
     }
   });
 }
@@ -473,15 +591,16 @@ function analyzeCurrentPost() {
   lastAnalysisTime = Date.now();
   analysisInProgress = true;
   
-  // Show the widget
-  const widget = document.getElementById('mlm-detector-widget');
-  if (widget) widget.classList.remove('hidden');
+  // Make sure widget is visible
+  showWidget();
   
   // Update UI to loading state
+  const waitingElement = document.getElementById('ig-mlm-waiting');
   const loadingElement = document.getElementById('ig-mlm-loading');
   const resultElement = document.getElementById('ig-mlm-result');
   const errorElement = document.getElementById('ig-mlm-error');
   
+  if (waitingElement) waitingElement.classList.add('hidden');
   if (loadingElement) loadingElement.classList.remove('hidden');
   if (resultElement) resultElement.classList.add('hidden');
   if (errorElement) errorElement.classList.add('hidden');
@@ -495,6 +614,9 @@ function analyzeCurrentPost() {
       if (response && response.success) {
         // Display result
         displayResult(response.result);
+        
+        // Save to history
+        saveToHistory(currentUrl, response.result);
       } else {
         // Display error
         displayError(response ? response.error : 'Unknown error');
@@ -505,6 +627,7 @@ function analyzeCurrentPost() {
 
 // Display analysis result in the widget
 function displayResult(result) {
+  const waitingElement = document.getElementById('ig-mlm-waiting');
   const loadingElement = document.getElementById('ig-mlm-loading');
   const resultElement = document.getElementById('ig-mlm-result');
   const errorElement = document.getElementById('ig-mlm-error');
@@ -520,6 +643,7 @@ function displayResult(result) {
   }
   
   // Update UI elements
+  if (waitingElement) waitingElement.classList.add('hidden');
   if (loadingElement) loadingElement.classList.add('hidden');
   if (errorElement) errorElement.classList.add('hidden');
   
@@ -541,6 +665,8 @@ function displayResult(result) {
     reasoningList.innerHTML = '';
     
     Object.entries(result.reasoning).forEach(([key, value]) => {
+      if (key === 'error') return; // Skip error entries
+      
       const formattedKey = key.replace(/_/g, ' ');
       const li = document.createElement('li');
       
@@ -552,8 +678,9 @@ function displayResult(result) {
       valueSpan.className = 'ig-mlm-reasoning-value';
       
       // Format the value appropriately
-      if (typeof value === 'boolean' || value === 'Yes' || value === 'No') {
-        const isPositive = value === true || value === 'Yes';
+      if (typeof value === 'boolean' || value === 'Yes' || value === 'No' || 
+          value === 'yes' || value === 'no') {
+        const isPositive = value === true || value === 'Yes' || value === 'yes';
         valueSpan.textContent = isPositive ? 'Yes' : 'No';
         valueSpan.classList.add(isPositive ? 'positive' : 'negative');
       } else {
@@ -566,17 +693,36 @@ function displayResult(result) {
     });
   }
   
+  // Check notification level settings to determine if we should show the widget
+  let shouldShowWidget = true;
+  
+  if (settings.notificationLevel === 'mlm-only' && result.verdict !== 'Yes') {
+    shouldShowWidget = false;
+  } else if (settings.notificationLevel === 'high-confidence' && 
+             (result.verdict !== 'Yes' || parseInt(result.certainty) < 70)) {
+    shouldShowWidget = false;
+  } else if (settings.notificationLevel === 'none') {
+    shouldShowWidget = false;
+  }
+  
+  // Show or hide widget based on notification settings
+  if (!shouldShowWidget) {
+    hideWidget();
+  }
+  
   // Show result container
   if (resultElement) resultElement.classList.remove('hidden');
 }
 
 // Display error in the widget
 function displayError(message) {
+  const waitingElement = document.getElementById('ig-mlm-waiting');
   const loadingElement = document.getElementById('ig-mlm-loading');
   const resultElement = document.getElementById('ig-mlm-result');
   const errorElement = document.getElementById('ig-mlm-error');
   const errorMessage = document.getElementById('ig-mlm-error-message');
   
+  if (waitingElement) waitingElement.classList.add('hidden');
   if (loadingElement) loadingElement.classList.add('hidden');
   if (resultElement) resultElement.classList.add('hidden');
   
@@ -584,7 +730,81 @@ function displayError(message) {
   if (errorElement) errorElement.classList.remove('hidden');
 }
 
+// Save analysis result to history
+function saveToHistory(url, result) {
+  chrome.storage.local.get(['history'], function(data) {
+    const history = data.history || [];
+    
+    // Check if this URL is already in history
+    const existingIndex = history.findIndex(item => item.url === url);
+    
+    if (existingIndex !== -1) {
+      // Update existing entry
+      history[existingIndex] = {
+        url: url,
+        postId: extractPostId(url),
+        result: result,
+        timestamp: new Date().toISOString()
+      };
+    } else {
+      // Add new entry to the beginning
+      history.unshift({
+        url: url,
+        postId: extractPostId(url),
+        result: result,
+        timestamp: new Date().toISOString()
+      });
+    }
+    
+    // Keep only the last 20 items
+    while (history.length > 20) {
+      history.pop();
+    }
+    
+    chrome.storage.local.set({ history: history });
+  });
+}
+
+// Extract post ID from URL
+function extractPostId(url) {
+  if (!url) return 'unknown';
+  const match = url.match(/instagram\.com\/p\/([^/?]+)/);
+  return match ? match[1] : 'unknown';
+}
+
 // Format reasoning key for display
 function formatReasoningKey(key) {
   return key.replace(/\b\w/g, l => l.toUpperCase());
 }
+
+// Listen for messages from popup or background script
+chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+  if (message.action === 'updateSettings') {
+    // Update settings
+    settings = message.settings;
+    console.log('MLM Detector: Settings updated', settings);
+    
+    // Apply new settings
+    const widget = document.getElementById('mlm-detector-widget');
+    
+    if (widget) {
+      if (settings.widgetEnabled) {
+        updateWidgetPosition(widget);
+        showWidget();
+      } else {
+        hideWidget();
+      }
+    } else if (settings.widgetEnabled && isInstagramPost(window.location.href)) {
+      createWidget();
+    }
+  } else if (message.action === 'showWidget') {
+    // Force show widget
+    showWidget();
+  } else if (message.action === 'hideWidget') {
+    // Force hide widget
+    hideWidget();
+  } else if (message.action === 'analyze') {
+    // Force analyze current post
+    analyzeCurrentPost();
+  }
+});
