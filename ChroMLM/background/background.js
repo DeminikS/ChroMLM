@@ -32,6 +32,7 @@ chrome.runtime.onInstalled.addListener(function() {
   // Function to analyze a post via the backend API
   async function analyzePost(url) {
     try {
+      console.log('Sending request to API:', url);
       const apiUrl = 'http://127.0.0.1:8000/analyze/';
       
       const response = await fetch(apiUrl, {
@@ -42,41 +43,23 @@ chrome.runtime.onInstalled.addListener(function() {
         body: JSON.stringify({ url: url })
       });
       
+      console.log('API response status:', response.status);
+      
       if (!response.ok) {
         throw new Error(`API error: ${response.status}`);
       }
       
-      return await response.json();
+      // More careful handling of the JSON response
+      try {
+        const jsonData = await response.json();
+        console.log('API response data:', jsonData);
+        return jsonData;
+      } catch (jsonError) {
+        console.error('Error parsing JSON response:', jsonError);
+        throw new Error('Failed to parse API response');
+      }
     } catch (error) {
       console.error('Error in analyzePost:', error);
       throw error;
     }
   }
-  
-  // Optional: Add context menu functionality
-  chrome.contextMenus.create({
-    id: 'analyze-instagram-post',
-    title: 'Analyze for MLM content',
-    contexts: ['link'],
-    documentUrlPatterns: ['https://www.instagram.com/*']
-  });
-  
-  chrome.contextMenus.onClicked.addListener((info, tab) => {
-    if (info.menuItemId === 'analyze-instagram-post') {
-      // Check if the clicked link is an Instagram post
-      if (info.linkUrl && info.linkUrl.match(/https:\/\/www\.instagram\.com\/p\/[^/]+\/?/)) {
-        // Open the link in a new tab and analyze it
-        chrome.tabs.create({ url: info.linkUrl }, (newTab) => {
-          // Wait for the tab to load and then analyze
-          chrome.tabs.onUpdated.addListener(function listener(tabId, changeInfo) {
-            if (tabId === newTab.id && changeInfo.status === 'complete') {
-              chrome.tabs.onUpdated.removeListener(listener);
-              
-              // Execute content script to analyze the post
-              chrome.tabs.sendMessage(tabId, { action: 'analyzeFromContextMenu' });
-            }
-          });
-        });
-      }
-    }
-  });

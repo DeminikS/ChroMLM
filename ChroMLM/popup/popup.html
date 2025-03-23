@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Instagram MLM Detector</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Instagram MLM Detector</h1>
+    </header>
+    
+    <main>
+      <div id="current-url-container">
+        <p>Current URL: <span id="current-url">Not an Instagram post</span></p>
+      </div>
+      
+      <div id="analysis-container">
+        <button id="analyze-btn" disabled>Analyze This Post</button>
+        <div id="loading" class="hidden">Analyzing...</div>
+      </div>
+      
+      <div id="result-container" class="hidden">
+        <h2>Analysis Result</h2>
+        <div class="result-card">
+          <p><strong>MLM Detected:</strong> <span id="verdict">Unknown</span></p>
+          <p><strong>Certainty:</strong> <span id="certainty">0</span>%</p>
+          <h3>Reasoning:</h3>
+          <ul id="reasoning-list"></ul>
+        </div>
+      </div>
+      
+      <div id="history-container">
+        <h2>Recent Analyses</h2>
+        <div id="history-list">
+          <!-- History items will be added here -->
+        </div>
+      </div>
+    </main>
+    
+    <footer>
+      <p>&copy; 2025 Instagram MLM Detector</p>
+    </footer>
+  </div>
+  
+  <script src="popup.js"></script>
+</body>
+</html>

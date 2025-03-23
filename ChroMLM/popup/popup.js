@@ -10,14 +10,20 @@ document.addEventListener('DOMContentLoaded', function() {
     
     let currentUrl = '';
   
+    console.log('Popup script loaded');
+  
     // Check if current tab is an Instagram post
     chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
       currentUrl = tabs[0].url;
+      console.log('Current URL:', currentUrl);
       currentUrlSpan.textContent = currentUrl;
       
       // Enable the analyze button if we're on an Instagram post page
       if (isInstagramPost(currentUrl)) {
+        console.log('Valid Instagram post detected');
         analyzeBtn.disabled = false;
+      } else {
+        console.log('Not a valid Instagram post URL');
       }
     });
   
@@ -26,6 +32,8 @@ document.addEventListener('DOMContentLoaded', function() {
   
     // Add event listener to analyze button
     analyzeBtn.addEventListener('click', function() {
+      console.log('Analyze button clicked');
+      
       if (!isInstagramPost(currentUrl)) {
         alert('This is not an Instagram post URL');
         return;
@@ -36,9 +44,12 @@ document.addEventListener('DOMContentLoaded', function() {
       loadingElement.classList.remove('hidden');
       resultContainer.classList.add('hidden');
       
-      // Call backend API
+      console.log('Sending message to analyze:', currentUrl);
+      
+      // Call backend API directly from popup instead of through background script
       analyzeInstagramPost(currentUrl)
         .then(result => {
+          console.log('Analysis result received:', result);
           // Display result
           displayResult(result);
           
@@ -49,8 +60,8 @@ document.addEventListener('DOMContentLoaded', function() {
           loadHistory();
         })
         .catch(error => {
-          alert('Error analyzing post: ' + error.message);
           console.error('Analysis error:', error);
+          alert('Error analyzing post: ' + error.message);
         })
         .finally(() => {
           // Hide loading state
@@ -66,21 +77,32 @@ document.addEventListener('DOMContentLoaded', function() {
   
     // Function to analyze Instagram post
     async function analyzeInstagramPost(url) {
+      console.log('Starting API request to:', url);
       const apiUrl = 'http://127.0.0.1:8000/analyze/';
       
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ url: url })
-      });
-      
-      if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
+      try {
+        console.log('Fetching from API');
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ url: url })
+        });
+        
+        console.log('API response status:', response.status);
+        
+        if (!response.ok) {
+          throw new Error(`API error: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('API response data:', data);
+        return data;
+      } catch (error) {
+        console.error('API request failed:', error);
+        throw error;
       }
-      
-      return await response.json();
     }
   
     // Function to display result
