@@ -1,0 +1,35 @@
+# Node modules (if you add npm dependencies later)
+node_modules/
+
+# Build directories
+dist/
+build/
+
+# Environment variables
+.env
+
+# OS specific files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Temporary files
+tmp/
+temp/
+
+# VS Code specific files (optional)
+.vscode/*
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/tasks.json
+
+# Chrome extension packaging
+*.crx
+*.pem
+*.zip
+
+# Coverage reports
+coverage/
