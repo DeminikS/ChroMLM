@@ -1,0 +1,150 @@
+/* General Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: 'Arial', sans-serif;
+    background-color: #121212;
+    color: #e0e0e0;
+  }
+  
+  .container {
+    width: 350px;
+    background: #1e1e1e;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  
+  /* Header */
+  header {
+    background-color: #d32f2f;
+    color: #fff;
+    text-align: center;
+    padding: 15px;
+    border-bottom: 2px solid #b71c1c;
+  }
+  
+  h1 {
+    font-size: 18px;
+    font-weight: bold;
+  }
+  
+  /* Main Content */
+  main {
+    padding: 15px;
+  }
+  
+  #current-url-container {
+    margin-bottom: 15px;
+    padding: 10px;
+    background: #2c2c2c;
+    border-radius: 5px;
+    font-size: 14px;
+    word-break: break-all;
+  }
+  
+  #analyze-btn {
+    background-color: #d32f2f;
+    color: white;
+    padding: 10px 15px;
+    font-size: 14px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    width: 100%;
+    margin-bottom: 15px;
+  }
+  
+  #analyze-btn:hover {
+    background-color: #b71c1c;
+  }
+  
+  #analyze-btn:disabled {
+    background-color: #555;
+    cursor: not-allowed;
+  }
+  
+  #loading {
+    text-align: center;
+    margin: 15px 0;
+    font-style: italic;
+  }
+  
+  .hidden {
+    display: none;
+  }
+  
+  /* Result Container */
+  #result-container {
+    margin-top: 15px;
+    margin-bottom: 20px;
+  }
+  
+  .result-card {
+    padding: 15px;
+    background: #2c2c2c;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    margin-top: 10px;
+  }
+  
+  #reasoning-list {
+    padding-left: 20px;
+    margin-top: 10px;
+  }
+  
+  #reasoning-list li {
+    margin-bottom: 5px;
+  }
+  
+  /* History Container */
+  #history-container {
+    margin-top: 20px;
+  }
+  
+  .history-item {
+    padding: 10px;
+    background: #2c2c2c;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .history-item:hover {
+    background: #3c3c3c;
+  }
+  
+  .history-url {
+    font-size: 12px;
+    color: #aaa;
+    word-break: break-all;
+  }
+  
+  .history-verdict {
+    margin-top: 5px;
+    font-weight: bold;
+  }
+  
+  .verdict-yes {
+    color: #f44336;
+  }
+  
+  .verdict-no {
+    color: #4caf50;
+  }
+  
+  /* Footer */
+  footer {
+    background-color: #d32f2f;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    font-size: 12px;
+  }
