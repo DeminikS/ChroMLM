@@ -44,8 +44,9 @@ out/
 coverage/
 
 # Python specific files
-__pycache__/
-*.py[cod]
+.venv/
+__pycache__
+*.py[cod]/
 *$py.class
 .Python
 env/
@@ -64,20 +65,3 @@ var/
 .installed.cfg
 *.egg
 
-# PyCharm specific files that sometimes aren't excluded by default
-.idea/workspace.xml
-.idea/tasks.xml
-.idea/dictionaries
-.idea/vcs.xml
-.idea/jsLibraryMappings.xml
-.idea/dataSources/
-.idea/dataSources.ids
-.idea/dataSources.xml
-.idea/dataSources.local.xml
-.idea/sqlDataSources.xml
-.idea/dynamic.xml
-.idea/uiDesigner.xml
-.idea/inspectionProfiles/
-.idea/misc.xml
-.idea/modules.xml
-.idea/shelf/
