@@ -20,11 +20,20 @@ npm-debug.log*
 tmp/
 temp/
 
-# VS Code specific files (optional)
+# VS Code specific files 
 .vscode/*
 !.vscode/extensions.json
 !.vscode/launch.json
 !.vscode/tasks.json
+
+# PyCharm specific files
+.idea/
+*.iml
+*.iws
+*.ipr
+*.iws
+.idea_modules/
+out/
 
 # Chrome extension packaging
 *.crx
@@ -33,3 +42,42 @@ temp/
 
 # Coverage reports
 coverage/
+
+# Python specific files
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# PyCharm specific files that sometimes aren't excluded by default
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/dictionaries
+.idea/vcs.xml
+.idea/jsLibraryMappings.xml
+.idea/dataSources/
+.idea/dataSources.ids
+.idea/dataSources.xml
+.idea/dataSources.local.xml
+.idea/sqlDataSources.xml
+.idea/dynamic.xml
+.idea/uiDesigner.xml
+.idea/inspectionProfiles/
+.idea/misc.xml
+.idea/modules.xml
+.idea/shelf/
