@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
+  
   // Tab navigation
   setupTabs();
   
@@ -20,7 +21,6 @@ document.addEventListener('DOMContentLoaded', function() {
   const totalAnalyzedElement = document.getElementById('total-analyzed');
   const confidenceChart = document.getElementById('confidence-chart');
   const clearHistoryBtn = document.getElementById('clear-history');
-  const settingsBtn = document.getElementById('settings-btn');
   const showWidgetBtn = document.getElementById('show-widget-btn');
   
   // Default settings

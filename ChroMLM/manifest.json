@@ -1,27 +1,46 @@
 {
-    "manifest_version": 3,
-    "name": "Instagram MLM Detector",
-    "version": "1.0.0",
-    "description": "Analyzes Instagram posts to detect Multi-Level Marketing content",
-    "permissions": [
-      "activeTab",
-      "storage",
-      "scripting"
-    ],
-    "host_permissions": [
-      "http://127.0.0.1:8000/*",
-      "https://www.instagram.com/*"
-    ],
-    "action": {
-      "default_popup": "popup/popup.html"
-    },
-    "content_scripts": [
-      {
-        "matches": ["https://www.instagram.com/p/*"],
-        "js": ["content/content.js"]
-      }
-    ],
-    "background": {
-      "service_worker": "background/background.js"
+  "manifest_version": 3,
+  "name": "Instagram MLM Detector",
+  "version": "1.0.0",
+  "description": "Analyzes Instagram posts to detect Multi-Level Marketing content",
+  "icons": {
+    "16": "assets/icon16.png",
+    "32": "assets/icon32.png",
+    "48": "assets/icon48.png",
+    "128": "assets/icon128.png"
+  },
+"permissions": [
+  "activeTab",
+  "storage",
+  "scripting",
+  "tabs"
+],
+  "host_permissions": [
+    "http://127.0.0.1:8000/*",
+    "https://www.instagram.com/*"
+  ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "assets/icon16.png",
+      "32": "assets/icon32.png",
+      "48": "assets/icon48.png",
+      "128": "assets/icon128.png"
     }
-  }
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.instagram.com/p/*"],
+      "js": ["content/content.js"]
+    }
+  ],
+  "background": {
+    "service_worker": "background/background.js"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["assets/*"],
+      "matches": ["https://www.instagram.com/*"]
+    }
+  ]
+}
