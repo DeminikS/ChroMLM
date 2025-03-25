@@ -90,60 +90,15 @@ deploy_local() {
     deactivate
 }
 
-# Deploy to development environment (placeholder for actual deployment)
-deploy_dev() {
-    print_status "Deploying MLM Detector server to development environment..."
-    
-    # Package the application
-    mkdir -p dist
-    tar -czf dist/server-package.tar.gz src requirements.txt
-    
-    # This is where you would add commands to deploy to your dev environment
-    # For example, upload to a server, or deploy to a cloud service
-    
-    print_status "Development deployment would typically involve:"
-    print_status "1. Setting up a server with Python and required dependencies"
-    print_status "2. Copying the application files to the server"
-    print_status "3. Setting up a service to run the application (systemd, supervisor, etc.)"
-    print_status "4. Configuring a reverse proxy (nginx, apache, etc.)"
-    print_status "Mock development deployment completed."
-}
-
-# Deploy to production environment (placeholder for actual deployment)
-deploy_prod() {
-    print_status "Deploying MLM Detector server to production environment..."
-    
-    # Package the application
-    mkdir -p dist
-    tar -czf dist/server-package.tar.gz src requirements.txt
-    
-    # This is where you would add commands to deploy to your production environment
-    # Similar to dev deployment but with production-specific configuration
-    
-    print_status "Production deployment would typically involve:"
-    print_status "1. Setting up a production server with Python and required dependencies"
-    print_status "2. Copying the application files to the server"
-    print_status "3. Setting up a service to run the application"
-    print_status "4. Configuring a reverse proxy with SSL"
-    print_status "5. Setting up monitoring and alerting"
-    print_status "Mock production deployment completed."
-}
-
 # Main function
 main() {
     case "$DEPLOY_TARGET" in
         local)
             deploy_local
             ;;
-        dev)
-            deploy_dev
-            ;;
-        prod)
-            deploy_prod
-            ;;
         *)
             print_error "Unknown deployment target: $DEPLOY_TARGET"
-            print_status "Valid targets are: local, dev, prod"
+            print_status "Valid targets are: local"
             exit 1
             ;;
     esac
