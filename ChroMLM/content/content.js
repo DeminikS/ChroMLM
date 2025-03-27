@@ -131,6 +131,7 @@ function setupWidgetForCurrentPage() {
 }
 
 // Create the widget UI
+
 function createWidget() {
   const widget = document.createElement('div');
   widget.id = 'mlm-detector-widget';
@@ -139,13 +140,22 @@ function createWidget() {
   // Set initial positioning
   updateWidgetPosition(widget);
   
-  // Build widget HTML
+  // Build widget HTML - using regular SVGs instead of external library
   widget.innerHTML = `
     <div class="ig-mlm-header">
       <h3>MLM Detector</h3>
       <div class="ig-mlm-header-actions">
-        <button class="ig-mlm-minimize">&minus;</button>
-        <button class="ig-mlm-close">&times;</button>
+        <button class="ig-mlm-minimize" aria-label="Minimize">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        </button>
+        <button class="ig-mlm-close" aria-label="Close">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
       </div>
     </div>
     <div id="ig-mlm-content" class="ig-mlm-content">
@@ -168,18 +178,37 @@ function createWidget() {
           </div>
           <div class="ig-mlm-reasoning">
             <details>
-              <summary>View Details</summary>
+              <summary>
+                <span>View Details</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </summary>
               <ul id="ig-mlm-reasoning-list"></ul>
             </details>
           </div>
         </div>
         <div id="ig-mlm-error" class="ig-mlm-error hidden">
           <p id="ig-mlm-error-message">Error analyzing post</p>
-          <button id="ig-mlm-retry" class="ig-mlm-button">Retry</button>
+          <button id="ig-mlm-retry" class="ig-mlm-button">
+            <span>Retry</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 2v6h-6"></path>
+              <path d="M3 12a9 9 0 0 1 15-6.7l3 2.7"></path>
+              <path d="M3 22v-6h6"></path>
+              <path d="M21 12a9 9 0 0 1-15 6.7l-3-2.7"></path>
+            </svg>
+          </button>
         </div>
         <div id="ig-mlm-waiting" class="ig-mlm-waiting">
           <p>Click to analyze this post for MLM content</p>
-          <button id="ig-mlm-analyze" class="ig-mlm-button">Analyze Post</button>
+          <button id="ig-mlm-analyze" class="ig-mlm-button">
+            <span>Analyze Post</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </button>
         </div>
       </div>
     </div>
@@ -205,7 +234,7 @@ function createWidget() {
   console.log('MLM Detector: Widget created');
 }
 
-// Add the widget styles
+// Add the widget styles with improved icon consistency
 function addWidgetStyles() {
   if (document.getElementById('mlm-detector-styles')) return;
   
@@ -225,6 +254,8 @@ function addWidgetStyles() {
     }
     
     .ig-mlm-detector {
+      --icon-size: 20px;
+      --icon-stroke-width: 2.5px;
       position: fixed;
       z-index: 9999;
       width: 280px;
@@ -270,12 +301,11 @@ function addWidgetStyles() {
       background: none;
       border: none;
       color: white;
-      font-size: 18px;
-      cursor: pointer;
       padding: 0;
+      cursor: pointer;
       line-height: 1;
-      width: 20px;
-      height: 20px;
+      width: 24px;
+      height: 24px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -384,6 +414,9 @@ function addWidgetStyles() {
       font-weight: 600;
       cursor: pointer;
       padding: 8px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
     
     .ig-mlm-reasoning ul {
@@ -452,6 +485,9 @@ function addWidgetStyles() {
       font-weight: 600;
       cursor: pointer;
       margin-top: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
     }
     
     .ig-mlm-button:hover {

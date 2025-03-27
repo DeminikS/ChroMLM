@@ -1,660 +1,664 @@
-#analysis-tab {
-    display: none;
-    padding: 16px;
-    height: 100%;
-    overflow-y: auto;
-  }
-  
-  #analysis-tab.active {
-    display: block;
-  }/* Instagram-Inspired MLM Detector Styles */
-  
-  :root {
-    --instagram-blue: #0095f6;
-    --instagram-gradient: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
-    --error-red: #ed4956;
-    --success-green: #2ecc71;
-    --text-primary: #262626;
-    --text-secondary: #8e8e8e;
-    --bg-primary: #ffffff;
-    --bg-secondary: #fafafa;
-    --border-color: #dbdbdb;
-    --shadow-color: rgba(0, 0, 0, 0.1);
-  }
-  
-  /* Make sure the box-sizing rule is still applied */
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE and Edge */
-  }
-  
-  *::-webkit-scrollbar {
-    width: 0;
-    height: 0;
-    display: none; /* Chrome, Safari, Opera */
-  }
-  
-  body {
-    font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    color: var(--text-primary);
-    background-color: var(--bg-primary);
-    font-size: 14px;
-    line-height: 1.5;
-    overflow: hidden;
-  }
-  
-  .app-container {
-    width: 380px;
-    height: 500px;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    padding-right: 0; /* Prevent scrollbar from shifting content */
-  }
-  
-  /* Header Styles */
-  .app-header {
-    padding: 15px;
-    border-bottom: 1px solid var(--border-color);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-  }
-  
-  .logo {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .logo-text {
-    font-size: 18px;
-    font-weight: 600;
-    background: var(--instagram-gradient);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-  
-  /* Tab Navigation */
-  .tab-nav {
-    display: flex;
-    justify-content: space-around;
-    border-bottom: 1px solid var(--border-color);
-    background-color: var(--bg-primary);
-  }
-  
-  .tab-btn {
-    flex: 1;
-    padding: 12px 5px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: var(--text-secondary);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    font-size: 12px;
-    position: relative;
-    transition: all 0.2s ease;
-  }
-  
-  .tab-btn.active {
-    color: var(--instagram-blue);
-  }
-  
-  .tab-btn.active::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background-color: var(--instagram-blue);
-  }
-  
-  .tab-icon {
-    width: 24px;
-    height: 24px;
-    margin-bottom: 4px;
-  }
-  
-  /* Content Area */
-  .tab-content {
-    flex: 1;
-    overflow-y: auto;
-    background-color: var(--bg-secondary);
-  }
-  
-  .tab-pane {
-    display: none;
-    padding: 16px;
-    height: 100%;
-  }
-  
-  .tab-pane.active {
-    display: block;
-  }
-  
-  /* Current Post */
-  .current-post {
-    background-color: var(--bg-primary);
-    border-radius: 8px;
-    padding: 12px;
-    margin-bottom: 16px;
-    box-shadow: 0 1px 2px var(--shadow-color);
-  }
-  
-  .post-info {
-    display: flex;
-    align-items: center;
-  }
-  
-  .post-id {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--text-secondary);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  
-  /* Loading Animation */
-  .loading-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 30px 0;
-    background-color: var(--bg-primary);
-    border-radius: 8px;
-    box-shadow: 0 1px 2px var(--shadow-color);
-  }
-  
-  .loader {
-    width: 40px;
-    height: 40px;
-    border: 3px solid #f3f3f3;
-    border-top: 3px solid var(--instagram-blue);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin-bottom: 16px;
-  }
-  
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-  
-  /* Results Container */
-  .result-container {
-    background-color: var(--bg-primary);
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 1px 2px var(--shadow-color);
-    /* Ensure no scrollbar appears */
-    overflow-y: auto;
-    max-height: 100%;
-  }
-  
-  .verdict-container {
-    padding: 16px;
-    border-bottom: 1px solid var(--border-color);
-  }
-  
-  .verdict-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 12px;
-  }
-  
-  .verdict-label {
-    font-weight: 600;
-    margin-right: 8px;
-  }
-  
-  .verdict-value {
-    font-weight: 600;
-    font-size: 16px;
-    padding: 4px 10px;
-    border-radius: 12px;
-    background-color: var(--success-green);
-    color: white;
-  }
-  
-  .verdict-value.mlm-yes {
-    background-color: var(--error-red);
-  }
-  
-  .certainty-meter {
-    display: flex;
-    align-items: center;
-  }
-  
-  .certainty-label {
-    font-weight: 500;
-    margin-right: 8px;
-    width: 70px;
-  }
-  
-  .meter-container {
-    flex: 1;
-    height: 8px;
-    background-color: #efefef;
-    border-radius: 10px;
-    position: relative;
-  }
-  
-  .meter-bar {
-    height: 100%;
-    border-radius: 10px;
-    background: var(--instagram-gradient);
-    width: 0;
-    transition: width 0.5s ease-out;
-  }
-  
-  .meter-value {
-    position: absolute;
-    top: -18px;
-    right: 0;
-    font-size: 12px;
-    font-weight: 600;
-  }
-  
-  .reasoning-container {
-    padding: 16px;
-  }
-  
-  .reasoning-container h3 {
-    margin-bottom: 12px;
-    font-size: 16px;
-    font-weight: 600;
-  }
-  
-  .reasoning-list {
-    list-style: none;
-    max-height: 200px;
-    overflow-y: auto;
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE and Edge */
-  }
-  
-  .reasoning-list::-webkit-scrollbar {
-    display: none;
-  }
-  
-  .reasoning-list li {
-    padding: 8px 0;
-    border-bottom: 1px solid var(--border-color);
-    display: flex;
-    justify-content: space-between;
-  }
-  
-  .reasoning-list li:last-child {
-    border-bottom: none;
-  }
-  
-  .reasoning-factor {
-    font-weight: 500;
-  }
-  
-  .reasoning-value {
-    font-weight: 600;
-  }
-  
-  .reasoning-value.positive {
-    color: var(--error-red);
-  }
-  
-  .reasoning-value.negative {
-    color: var(--success-green);
-  }
-  
-  /* History Tab */
-  .history-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
-  }
-  
-  .history-header h3 {
-    font-size: 16px;
-    font-weight: 600;
-  }
-  
-  .secondary-btn {
-    background: none;
-    border: none;
-    color: var(--instagram-blue);
-    font-weight: 600;
-    cursor: pointer;
-    padding: 5px 10px;
-  }
-  
-  .history-list-container {
-    height: calc(100% - 40px);
-    overflow-y: auto;
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE and Edge */
-  }
-  
-  /* Hide scrollbar for Chrome, Safari and Opera */
-  .history-list-container::-webkit-scrollbar {
-    display: none;
-  }
-  
-  .history-item {
-    background-color: var(--bg-primary);
-    border-radius: 8px;
-    padding: 12px 16px;
-    margin-bottom: 12px;
-    box-shadow: 0 1px 2px var(--shadow-color);
-    cursor: pointer;
-  }
-  
-  .history-item:hover {
-    box-shadow: 0 2px 4px var(--shadow-color);
-  }
-  
-  .history-post-id {
-    font-size: 14px;
-    color: var(--text-secondary);
-    margin-bottom: 8px;
-  }
-  
-  .history-result {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .history-verdict {
-    display: flex;
-    align-items: center;
-  }
-  
-  .history-verdict-label {
-    margin-right: 5px;
-    font-weight: 500;
-  }
-  
-  .history-verdict-value {
-    padding: 2px 8px;
-    border-radius: 10px;
-    font-size: 12px;
-    font-weight: 600;
-    color: white;
-    background-color: var(--success-green);
-  }
-  
-  .history-verdict-value.mlm-yes {
-    background-color: var(--error-red);
-  }
-  
-  .history-certainty {
-    font-size: 12px;
-    color: var(--text-secondary);
-  }
-  
-  .empty-history {
-    text-align: center;
-    color: var(--text-secondary);
-    padding: 30px 0;
-  }
-  
-  /* Stats Tab */
-  .stats-overview {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 24px;
-  }
-  
-  .stat-card {
-    flex: 1;
-    background-color: var(--bg-primary);
-    border-radius: 8px;
-    padding: 16px;
-    text-align: center;
-    box-shadow: 0 1px 2px var(--shadow-color);
-    margin: 0 8px;
-  }
-  
-  .stat-card:first-child {
-    margin-left: 0;
-  }
-  
-  .stat-card:last-child {
-    margin-right: 0;
-  }
-  
-  .stat-value {
-    display: block;
-    font-size: 24px;
-    font-weight: 600;
-    margin-bottom: 5px;
-    color: var(--instagram-blue);
-  }
-  
-  .stat-label {
-    font-size: 12px;
-    color: var(--text-secondary);
-  }
-  
-  .stats-chart-container {
-    background-color: var(--bg-primary);
-    border-radius: 8px;
-    padding: 16px;
-    box-shadow: 0 1px 2px var(--shadow-color);
-  }
-  
-  .stats-chart-container h3 {
-    margin-bottom: 16px;
-    font-size: 16px;
-    font-weight: 600;
-    text-align: center;
-  }
-  
-  .chart-container {
-    height: 180px;
-    position: relative;
-  }
-  
-  .chart-placeholder {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-    color: var(--text-secondary);
-  }
-  
-  .confidence-chart {
-    height: 100%;
-    display: flex;
-    align-items: flex-end;
-  }
-  
-  .chart-bar {
-    flex: 1;
-    margin: 0 2px;
-    background: var(--instagram-gradient);
-    height: 0;
-    transition: height 0.3s ease;
-    position: relative;
-    border-radius: 2px 2px 0 0;
-  }
-  
-  .chart-bar-label {
-    position: absolute;
-    bottom: -20px;
-    left: 0;
-    right: 0;
-    text-align: center;
-    font-size: 10px;
-    color: var(--text-secondary);
-  }
-  
-  /* Footer */
-  .app-footer {
-    padding: 10px;
-    border-top: 1px solid var(--border-color);
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-  }
-  
-  .icon-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    width: 30px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--text-secondary);
-  }
-  
-  .icon-btn:hover {
-    color: var(--instagram-blue);
-  }
-  
-  .icon-btn svg {
-    width: 20px;
-    height: 20px;
-  }
-  
-  /* Utilities */
-  .hidden {
-    display: none;
-  }
-  
-  /* Settings tab styles */
-  #settings-tab {
-    display: none;
-    padding: 16px;
-    height: 100%;
-    overflow-y: auto;
-  }
-  
-  #settings-tab.active {
-    display: block;
-  }
-  
-  .settings-container {
-    background-color: var(--bg-primary);
-    border-radius: 8px;
-    padding: 16px;
-    box-shadow: 0 1px 2px var(--shadow-color);
-  }
-  
-  .settings-title {
-    font-size: 16px;
-    font-weight: 600;
-    margin-bottom: 16px;
-    color: var(--text-primary);
-  }
-  
-  .settings-section {
-    padding: 14px 0;
-    border-bottom: 1px solid var(--border-color);
-  }
-  
-  .settings-section:last-child {
-    border-bottom: none;
-  }
-  
-  .settings-option {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 6px;
-  }
-  
-  .settings-label {
-    font-weight: 500;
-  }
-  
-  .settings-description {
-    font-size: 12px;
-    color: var(--text-secondary);
-    margin-top: 4px;
-  }
-  
-  .settings-select {
-    padding: 8px 12px;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    background-color: var(--bg-primary);
-    color: var(--text-primary);
-    font-size: 14px;
-    max-width: 150px;
-  }
-  
-  /* Toggle Switch Styles */
-  .toggle-switch {
-    position: relative;
-    display: inline-block;
-    width: 44px;
-    height: 24px;
-  }
-  
-  .toggle-input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-  }
-  
-  .toggle-label {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    transition: .3s;
-    border-radius: 24px;
-  }
-  
-  .toggle-label:before {
-    position: absolute;
-    content: "";
-    height: 18px;
-    width: 18px;
-    left: 3px;
-    bottom: 3px;
-    background-color: white;
-    transition: .3s;
-    border-radius: 50%;
-  }
-  
-  .toggle-input:checked + .toggle-label {
-    background: var(--instagram-gradient);
-  }
-  
-  .toggle-input:checked + .toggle-label:before {
-    transform: translateX(20px);
-  }
-  
-  /* Button styles */
-  .primary-btn {
-    background: var(--instagram-blue);
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 8px 16px;
-    font-weight: 600;
-    cursor: pointer;
-    margin-top: 20px;
-    width: 100%;
-    transition: background-color 0.2s;
-  }
-  
-  .primary-btn:hover {
-    background-color: #0077e6;
-  }
+/* Instagram-Inspired MLM Detector Styles */
+  
+:root {
+  --instagram-blue: #0095f6;
+  --instagram-gradient: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+  --error-red: #ed4956;
+  --success-green: #2ecc71;
+  --text-primary: #262626;
+  --text-secondary: #8e8e8e;
+  --bg-primary: #ffffff;
+  --bg-secondary: #fafafa;
+  --border-color: #dbdbdb;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  
+  /* Icon specific variables for consistency */
+  --icon-size: 24px;
+  --icon-stroke-width: 2px;
+  --icon-color: currentColor;
+}
+
+/* Make sure the box-sizing rule is still applied */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+*::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none; /* Chrome, Safari, Opera */
+}
+
+body {
+  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+  font-size: 14px;
+  line-height: 1.5;
+  overflow: hidden;
+}
+
+.app-container {
+  width: 380px;
+  height: 500px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding-right: 0; /* Prevent scrollbar from shifting content */
+}
+
+/* Header Styles */
+.app-header {
+  padding: 15px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-text {
+  font-size: 18px;
+  font-weight: 600;
+  background: var(--instagram-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Tab Navigation */
+.tab-nav {
+  display: flex;
+  justify-content: space-around;
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--bg-primary);
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 12px 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 12px;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.tab-btn.active {
+  color: var(--instagram-blue);
+}
+
+.tab-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: var(--instagram-blue);
+}
+
+/* Icon styles - Updated for consistency */
+.tab-icon {
+  width: var(--icon-size);
+  height: var(--icon-size);
+  margin-bottom: 4px;
+  stroke-width: var(--icon-stroke-width);
+  color: var(--icon-color);
+}
+
+.footer-icon {
+  width: var(--icon-size);
+  height: var(--icon-size);
+  stroke-width: var(--icon-stroke-width);
+  color: var(--icon-color);
+}
+
+/* Content Area */
+.tab-content {
+  flex: 1;
+  overflow-y: auto;
+  background-color: var(--bg-secondary);
+}
+
+.tab-pane {
+  display: none;
+  padding: 16px;
+  height: 100%;
+}
+
+.tab-pane.active {
+  display: block;
+}
+
+/* Current Post */
+.current-post {
+  background-color: var(--bg-primary);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 2px var(--shadow-color);
+}
+
+.post-info {
+  display: flex;
+  align-items: center;
+}
+
+.post-id {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Loading Animation */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 0;
+  background-color: var(--bg-primary);
+  border-radius: 8px;
+  box-shadow: 0 1px 2px var(--shadow-color);
+}
+
+.loader {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid var(--instagram-blue);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Results Container */
+.result-container {
+  background-color: var(--bg-primary);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px var(--shadow-color);
+  /* Ensure no scrollbar appears */
+  overflow-y: auto;
+  max-height: 100%;
+}
+
+.verdict-container {
+  padding: 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.verdict-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.verdict-label {
+  font-weight: 600;
+  margin-right: 8px;
+}
+
+.verdict-value {
+  font-weight: 600;
+  font-size: 16px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  background-color: var(--success-green);
+  color: white;
+}
+
+.verdict-value.mlm-yes {
+  background-color: var(--error-red);
+}
+
+.certainty-meter {
+  display: flex;
+  align-items: center;
+}
+
+.certainty-label {
+  font-weight: 500;
+  margin-right: 8px;
+  width: 70px;
+}
+
+.meter-container {
+  flex: 1;
+  height: 8px;
+  background-color: #efefef;
+  border-radius: 10px;
+  position: relative;
+}
+
+.meter-bar {
+  height: 100%;
+  border-radius: 10px;
+  background: var(--instagram-gradient);
+  width: 0;
+  transition: width 0.5s ease-out;
+}
+
+.meter-value {
+  position: absolute;
+  top: -18px;
+  right: 0;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.reasoning-container {
+  padding: 16px;
+}
+
+.reasoning-container h3 {
+  margin-bottom: 12px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.reasoning-list {
+  list-style: none;
+  max-height: 200px;
+  overflow-y: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.reasoning-list::-webkit-scrollbar {
+  display: none;
+}
+
+.reasoning-list li {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+}
+
+.reasoning-list li:last-child {
+  border-bottom: none;
+}
+
+.reasoning-factor {
+  font-weight: 500;
+}
+
+.reasoning-value {
+  font-weight: 600;
+}
+
+.reasoning-value.positive {
+  color: var(--error-red);
+}
+
+.reasoning-value.negative {
+  color: var(--success-green);
+}
+
+/* History Tab */
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.history-header h3 {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.secondary-btn {
+  background: none;
+  border: none;
+  color: var(--instagram-blue);
+  font-weight: 600;
+  cursor: pointer;
+  padding: 5px 10px;
+}
+
+.history-list-container {
+  height: calc(100% - 40px);
+  overflow-y: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.history-list-container::-webkit-scrollbar {
+  display: none;
+}
+
+.history-item {
+  background-color: var(--bg-primary);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 2px var(--shadow-color);
+  cursor: pointer;
+}
+
+.history-item:hover {
+  box-shadow: 0 2px 4px var(--shadow-color);
+}
+
+.history-post-id {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.history-result {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.history-verdict {
+  display: flex;
+  align-items: center;
+}
+
+.history-verdict-label {
+  margin-right: 5px;
+  font-weight: 500;
+}
+
+.history-verdict-value {
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: white;
+  background-color: var(--success-green);
+}
+
+.history-verdict-value.mlm-yes {
+  background-color: var(--error-red);
+}
+
+.history-certainty {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.empty-history {
+  text-align: center;
+  color: var(--text-secondary);
+  padding: 30px 0;
+}
+
+/* Stats Tab */
+.stats-overview {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  flex: 1;
+  background-color: var(--bg-primary);
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+  box-shadow: 0 1px 2px var(--shadow-color);
+  margin: 0 8px;
+}
+
+.stat-card:first-child {
+  margin-left: 0;
+}
+
+.stat-card:last-child {
+  margin-right: 0;
+}
+
+.stat-value {
+  display: block;
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: var(--instagram-blue);
+}
+
+.stat-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.stats-chart-container {
+  background-color: var(--bg-primary);
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 1px 2px var(--shadow-color);
+}
+
+.stats-chart-container h3 {
+  margin-bottom: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.chart-container {
+  height: 180px;
+  position: relative;
+}
+
+.chart-placeholder {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  color: var(--text-secondary);
+}
+
+.confidence-chart {
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+}
+
+.chart-bar {
+  flex: 1;
+  margin: 0 2px;
+  background: var(--instagram-gradient);
+  height: 0;
+  transition: height 0.3s ease;
+  position: relative;
+  border-radius: 2px 2px 0 0;
+}
+
+.chart-bar-label {
+  position: absolute;
+  bottom: -20px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 10px;
+  color: var(--text-secondary);
+}
+
+/* Footer */
+.app-footer {
+  padding: 10px;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  border-radius: 50%;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.icon-btn:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: var(--instagram-blue);
+}
+
+/* Utilities */
+.hidden {
+  display: none;
+}
+
+/* Settings tab styles */
+#settings-tab {
+  display: none;
+  padding: 16px;
+  height: 100%;
+  overflow-y: auto;
+}
+
+#settings-tab.active {
+  display: block;
+}
+
+.settings-container {
+  background-color: var(--bg-primary);
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 1px 2px var(--shadow-color);
+}
+
+.settings-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: var(--text-primary);
+}
+
+.settings-section {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.settings-section:last-child {
+  border-bottom: none;
+}
+
+.settings-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.settings-label {
+  font-weight: 500;
+}
+
+.settings-description {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.settings-select {
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 14px;
+  max-width: 150px;
+}
+
+/* Toggle Switch Styles */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+
+.toggle-input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-label {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .3s;
+  border-radius: 24px;
+}
+
+.toggle-label:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .3s;
+  border-radius: 50%;
+}
+
+.toggle-input:checked + .toggle-label {
+  background: var(--instagram-gradient);
+}
+
+.toggle-input:checked + .toggle-label:before {
+  transform: translateX(20px);
+}
+
+/* Button styles */
+.primary-btn {
+  background: var(--instagram-blue);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 20px;
+  width: 100%;
+  transition: background-color 0.2s;
+}
+
+.primary-btn:hover {
+  background-color: #0077e6;
+}
