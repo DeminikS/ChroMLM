@@ -1,17 +1,12 @@
-// Background script for Instagram MLM Detector extension
-
-// Listen for installation
 chrome.runtime.onInstalled.addListener(function() {
   console.log('Instagram MLM Detector extension installed.');
   
-  // Initialize storage
   chrome.storage.local.get(['history'], function(data) {
     if (!data.history) {
       chrome.storage.local.set({ history: [] });
     }
   });
 
-  // Set default settings if not already set
   chrome.storage.local.get(['settings'], function(data) {
     if (!data.settings) {
       console.log('Setting default settings');
@@ -27,16 +22,13 @@ chrome.runtime.onInstalled.addListener(function() {
   });
 });
 
-// Listen for tab updates to inject content script if needed
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (changeInfo.status === 'complete' && tab.url && tab.url.includes('instagram.com/p/')) {
     console.log('Tab updated with Instagram post URL:', tab.url);
     
-    // Check if content script needs injection
     chrome.scripting.executeScript({
       target: { tabId: tabId },
       func: () => {
-        // Check if our widget exists already
         const widgetExists = !!document.getElementById('mlm-detector-widget');
         return { 
           url: window.location.href, 
@@ -46,7 +38,6 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     }).then(results => {
       if (results && results[0] && !results[0].result.widgetExists) {
         console.log('Widget not found, notifying content script to initialize');
-        // Notify content script to initialize
         chrome.tabs.sendMessage(tabId, { 
           action: 'initializeWidget'
         }).catch(err => {
@@ -59,7 +50,6 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   }
 });
 
-// Listen for messages from content scripts or popup
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
   if (message.action === 'analyzePost') {
     console.log('Background received analyze request for: ', message.url);
@@ -73,17 +63,14 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         sendResponse({ success: false, error: error.message });
       });
     
-    // Return true to indicate that the response is async
     return true;
   } else if (message.action === 'contentScriptReady') {
-    // Content script is ready and checking in
     console.log('Content script reported ready on: ', message.url);
     sendResponse({ acknowledged: true });
     return false;
   }
 });
 
-// Function to analyze a post via the backend API
 async function analyzePost(url) {
   try {
     console.log('Sending request to API:', url);
@@ -103,7 +90,6 @@ async function analyzePost(url) {
       throw new Error(`API error: ${response.status}`);
     }
     
-    // More careful handling of the JSON response
     try {
       const jsonData = await response.json();
       console.log('API response data:', jsonData);

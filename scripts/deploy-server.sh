@@ -21,28 +21,23 @@ echo -e "${BLUE}= MLM Detector Server Deploy Script =${NC}"
 echo -e "${BLUE}=====================================${NC}"
 echo
 
-# Function to print status messages
 print_status() {
     echo -e "${GREEN}[INFO]${NC} $1"
 }
 
-# Function to print warning messages
 print_warning() {
     echo -e "${YELLOW}[WARNING]${NC} $1"
 }
 
-# Function to print error messages
 print_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
-# Deploy locally using Python virtual environment
 deploy_local() {
     print_status "Deploying MLM Detector server locally..."
     
     cd ../Server || { print_error "Server directory not found"; exit 1; }
     
-    # Determine the correct Python command (python or python3)
     PYTHON_CMD="python"
     if ! command -v python &> /dev/null; then
         if command -v python3 &> /dev/null; then
@@ -55,21 +50,17 @@ deploy_local() {
         fi
     fi
     
-    # Check if Python virtual environment exists, create if it doesn't
     if [ ! -d ".venv" ]; then
         print_status "Creating Python virtual environment..."
         $PYTHON_CMD -m venv venv
     fi
     
-    # Activate virtual environment
     print_status "Activating virtual environment..."
     source .venv/bin/activate
     
-    # Install dependencies
     print_status "Installing dependencies..."
     pip install -q -r requirements.txt
     
-    # Check if LM Studio is running
     if ! curl -s http://localhost:1234/v1/models > /dev/null; then
         print_warning "LM Studio API doesn't appear to be running at http://localhost:1234/v1"
         print_warning "Make sure LM Studio is started with a model loaded."
@@ -82,15 +73,12 @@ deploy_local() {
         fi
     fi
     
-    # Start the server
     print_status "Starting backend server..."
     $PYTHON_CMD -m uvicorn src.Backend.backend:app --host 127.0.0.1 --port 8000 --reload
     
-    # Deactivate virtual environment (this will only run if the server is stopped)
     deactivate
 }
 
-# Main function
 main() {
     case "$DEPLOY_TARGET" in
         local)
@@ -104,5 +92,4 @@ main() {
     esac
 }
 
-# Execute main function
 main "$@"

@@ -4,10 +4,8 @@ from openai import OpenAI
 from src.DataStandardization.Standardizer import run as standard_data
 from loguru import logger as log
 
-# Set up LM Studio client
 client = OpenAI(base_url="http://localhost:1234/v1", api_key="lm-studio")
 
-# Load the standardized TikTok and Instagram data
 def load_standardized_data(file_path):
     log.info(f"Loading standardized data from {file_path}")
     with open(file_path, 'r', encoding='utf-8') as file:
@@ -15,12 +13,10 @@ def load_standardized_data(file_path):
 
 def classify_mlm_content(data):
     log.info("Classifying MLM content")
-    # Create a message to classify the content for MLM characteristics
     profile = data.get("profile", {})
     post = data.get("post", {})
     comments = data.get("comments", [])
 
-    # Construct the input message
     input_message = (
         f"Profile Bio: {profile.get('bio')}, Follower Count: {profile.get('followerCount')}\n"
         f"Post Title: {post.get('title')}\n"
@@ -28,7 +24,7 @@ def classify_mlm_content(data):
         f"Comments: {[comment['comment'] for comment in comments]}"
     )
 
-    model_identifier = "model-identifier"  # Make the model identifier configurable
+    model_identifier = "model-identifier"  
     log.debug(f"Input message for model: {input_message}")
     response = client.chat.completions.create(
         model=model_identifier,
@@ -48,13 +44,10 @@ def classify_mlm_content(data):
         stream=False
     )
 
-    # Extract and return the result in JSON format
     result = response.choices[0].message.content
     try:
-        # Remove code block markers if present
         if result.startswith("```json") and result.endswith("```"):
             result = result[7:-3].strip()
-        # Attempt to parse JSON using the built-in JSON library for robustness
         result_json = json.loads(result)
         log.info("Successfully classified MLM content")
     except json.JSONDecodeError:
@@ -75,7 +68,6 @@ async def analyze_post(url):
     log.add(sys.stderr, level="DEBUG")
     log.info("Sending data for analysis.")
     try:
-        # Use `await` instead of `asyncio.run` for async functions
         log.info("Loading data for analysis.")
         data = await standard_data(url)
         analysis = classify_mlm_content(data)
@@ -85,28 +77,3 @@ async def analyze_post(url):
     except Exception as e:
         log.exception("An error occurred during execution.")
         return {"error": str(e)}
-
-
-
-# Main execution
-if __name__ == "__main__":
-
-    log.remove()  # remove the old handler. Else, the old one will work along with the new one you've added below
-    log.add(sys.stderr, level="DEBUG")
-    # log.add("mlm_analysis.log", rotation="1 MB", retention="10 days")
-
-    log.info("Sending data for analysis.")
-
-    try:
-        # Load data from provided standardized JSON files
-        log.info("Loading TikTok data for analysis.")
-        tiktok_mlm_analysis = analyze_post("https://www.tiktok.com/@tiktok_poland/video/7440071783539150087")
-        log.info("Loading Instagram data for analysis.")
-        instagram_mlm_analysis = analyze_post("https://www.instagram.com/p/CTwgvhTMSqM/")
-        # Analyze the TikTok post for MLM characteristics
-        log.info(f"TikTok MLM Analysis: {json.dumps(tiktok_mlm_analysis, indent=2)}")
-        # Analyze the Instagram post for MLM characteristics
-        log.info(f"Instagram MLM Analysis: {json.dumps(instagram_mlm_analysis, indent=2)}")
-        log.success("Successfully analyzed data.")
-    except Exception as e:
-        log.exception("An error occurred during execution.")
