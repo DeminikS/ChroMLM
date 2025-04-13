@@ -65,3 +65,4 @@ var/
 .installed.cfg
 *.egg
 
+*.csv

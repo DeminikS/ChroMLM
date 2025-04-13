@@ -67,12 +67,12 @@ deploy_local() {
     
     # Install dependencies
     print_status "Installing dependencies..."
-    pip install -r requirements.txt
+    pip install -q -r requirements.txt
     
     # Check if LM Studio is running
     if ! curl -s http://localhost:1234/v1/models > /dev/null; then
         print_warning "LM Studio API doesn't appear to be running at http://localhost:1234/v1"
-        print_warning "Make sure LM Studio is started with the Llama 3.2 3B Instruct model loaded."
+        print_warning "Make sure LM Studio is started with a model loaded."
         read -p "Continue anyway? (y/n) " -n 1 -r
         echo
         if [[ ! $REPLY =~ ^[Yy]$ ]]; then
