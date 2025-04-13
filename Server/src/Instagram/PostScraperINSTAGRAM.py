@@ -10,7 +10,7 @@ import httpx
 from loguru import logger as log
 from tenacity import retry, stop_after_attempt, wait_fixed
 
-INSTAGRAM_DOCUMENT_ID = "8845758582119845"  # Constant ID for post documents from instagram.com
+INSTAGRAM_DOCUMENT_ID = "8845758582119845"  
 
 USER_AGENTS = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
@@ -180,12 +180,8 @@ async def parse_replies(node: Dict) -> List[Dict]:
 
 async def run(url):
     log.info("Running Instagram post and comment scraper.")
-    throttle = asyncio_throttle.Throttler(rate_limit=5, period=1)  # Throttle requests to avoid getting blocked
+    throttle = asyncio_throttle.Throttler(rate_limit=5, period=1)  
     async with throttle:
         post_data = await scrape_post(url)
     log.success("Successfully scraped post and comment data from Instagram")
     return post_data
-
-
-if __name__ == "__main__":
-    asyncio.run(run("https://www.instagram.com/p/C_dXbiNNLwH/"))

@@ -10,9 +10,7 @@ import httpx
 from loguru import logger as log
 from tenacity import retry, stop_after_attempt, wait_fixed
 
-# Constants for GraphQL document IDs
-INSTAGRAM_PROFILE_DOCUMENT_ID = "9539110062771438"  # Document ID for profile requests from Instagram
-
+INSTAGRAM_PROFILE_DOCUMENT_ID = "9539110062771438"  
 USER_AGENTS = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
@@ -99,14 +97,9 @@ async def parse_profile(data: Dict) -> Dict:
 
 async def run(pk):
     log.info("Running Instagram profile scraper.")
-    throttle = asyncio_throttle.Throttler(rate_limit=5, period=1)  # Throttle requests to avoid getting blocked
+    throttle = asyncio_throttle.Throttler(rate_limit=5, period=1)  
     async with throttle:
         log.info("Starting profile scraping")
         profile_data = await scrape_profile(pk)
     log.success("Successfully scraped post and comment data from Instagram")
     return profile_data
-
-
-if __name__ == "__main__":
-    log.info("Running main function")
-    asyncio.run(run("1021317618"))

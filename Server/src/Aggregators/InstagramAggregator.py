@@ -44,10 +44,5 @@ async def aggregate_data(post_url: str):
         "post_data": post_data
     }
 
-    # Print the aggregated data
     log.success("Successfully aggregated scraped Instagram data.")
     return aggregated_data
-
-if __name__ == "__main__":
-    instagram_url = "https://www.instagram.com/p/C0SeC8oCT1L/?img_index=1"
-    asyncio.run(aggregate_data(instagram_url))

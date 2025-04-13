@@ -6,13 +6,13 @@ from src.LLM.LMStudioInterface import analyze_post
 
 app = FastAPI()
 
-# CORS configuration
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows requests from all origins
+    allow_origins=["*"],  
     allow_credentials=True,
-    allow_methods=["*"],  # Allows all HTTP methods
-    allow_headers=["*"],  # Allows all headers
+    allow_methods=["*"],  
+    allow_headers=["*"],  
 )
 
 class PostURL(BaseModel):
@@ -21,11 +21,7 @@ class PostURL(BaseModel):
 @app.post("/analyze/")
 async def analyze_social_post(post_url: PostURL):
     try:
-        result = await analyze_post(post_url.url)  # Use `await` here
+        result = await analyze_post(post_url.url)
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-
-if __name__ == "__main__":
-    uvicorn.run("backend:app", host="127.0.0.1", port=8000, log_level="info")
